@@ -1,0 +1,7 @@
+export { encryptField, decryptField, hashSHA256, hmacSHA256 } from './lib/crypto'
+export { scrubPii, hashIp, hashUserAgent } from './lib/pii-scrubber'
+export type { PiiScrubResult } from './lib/pii-scrubber'
+export { callGoogleVision, callGroqGrading, callSmartGrading, searchGoogle } from './lib/ai-router'
+export type { OcrResult, LlmGradingRequest, LlmGradingResponse, SmartGradingRequest, SmartGradingResponse, SearchResult } from './lib/ai-router'
+export { normalizeOcrBlocks, mergeAdjacentBlocks } from './lib/ocr-parser'
+export { calculateWeightedTotal, mapPercentageToGpa, detectAnomalies } from './lib/grading'

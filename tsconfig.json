@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@markov/core": ["./packages/core"],
+      "@markov/types": ["./packages/types"],
+      "@markov/db": ["./packages/db"],
+      "@markov/cache": ["./packages/cache"],
+      "@markov/ui": ["./packages/ui"],
+      "@markov/observability": ["./packages/observability"],
+      "@markov/config": ["./packages/config"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next", "coverage"]
+}

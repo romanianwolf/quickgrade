@@ -1,0 +1,13 @@
+# Code Owners — Markov
+* @markov-edu/core-team
+
+# Security-critical paths require security review
+/packages/core/ @markov-edu/security-team
+/packages/db/ @markov-edu/security-team
+/apps/web/middleware.ts @markov-edu/security-team
+/apps/web/app/api/ @markov-edu/security-team
+
+# Infrastructure requires DevOps review
+/vercel.json @markov-edu/devops
+/.github/ @markov-edu/devops
+/scripts/ @markov-edu/devops

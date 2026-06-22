@@ -1,0 +1,27 @@
+{
+  "name": "@markov/core",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./crypto": "./lib/crypto.ts",
+    "./pii": "./lib/pii-scrubber.ts",
+    "./ai-router": "./lib/ai-router.ts",
+    "./ocr-parser": "./lib/ocr-parser.ts",
+    "./grading": "./lib/grading.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@markov/types": "workspace:*",
+    "@markov/cache": "workspace:*",
+    "@markov/observability": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

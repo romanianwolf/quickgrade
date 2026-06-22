@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markov — AI-Powered Grading Platform</title>
+  <meta name="description" content="Free, secure, AI-powered grading platform for schools. Grade answer sheets in seconds.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); }
+    .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); }
+    .float { animation: float 6s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .fade-in { animation: fadeIn 0.8s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body class="bg-gray-950 text-white">
+  <!-- Nav -->
+  <nav class="fixed top-0 w-full z-50 glass">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg gradient flex items-center justify-center font-bold text-sm">M</div>
+        <span class="text-lg font-bold">Markov</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#features" class="text-sm text-gray-300 hover:text-white transition">Features</a>
+        <a href="#how" class="text-sm text-gray-300 hover:text-white transition">How It Works</a>
+        <a href="/demo" class="text-sm bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium transition">Try Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative z-10 text-center max-w-4xl mx-auto px-6 fade-in">
+      <div class="inline-block mb-6 px-4 py-1.5 rounded-full glass text-sm text-blue-300 font-medium">
+        100% Free &bull; Open Source &bull; FERPA Compliant
+      </div>
+      <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
+        Grade Smarter,<br>
+        <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Not Harder</span>
+      </h1>
+      <p class="mt-6 text-xl text-gray-400 max-w-2xl mx-auto">
+        Scan answer sheets, let AI grade them instantly. No rubric? We search the web for correct answers automatically.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/demo" class="gradient px-8 py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg shadow-blue-600/25">
+          Try It Now — Free
+        </a>
+        <a href="#how" class="glass px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition">
+          See How It Works
+        </a>
+      </div>
+
+      <!-- Floating demo card -->
+      <div class="mt-16 mx-auto max-w-lg float">
+        <div class="glass rounded-2xl p-6 text-left">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-sm">Answer Sheet Graded</p>
+              <p class="text-xs text-gray-400">AI analyzed 4 criteria &bull; 2.3s</p>
+            </div>
+            <span class="ml-auto text-2xl font-bold text-green-400">87%</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Thesis</span><span class="font-medium">22/25</span></div>
+            <div class="w-full bg-gray-800 rounded-full h-1.5"><div class="bg-blue-500 h-1.5 rounded-full" style="width:88%"></div></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Evidence</span><span class="font-medium">24/30</span></div>
+            <div class="w-full bg-gray-800 rounded-full h-1.5"><div class="bg-purple-500 h-1.5 rounded-full" style="width:80%"></div></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Writing</span><span class="font-medium">21/25</span></div>
+            <div class="w-full bg-gray-800 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width:84%"></div></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Structure</span><span class="font-medium">20/20</span></div>
+            <div class="w-full bg-gray-800 rounded-full h-1.5"><div class="bg-yellow-500 h-1.5 rounded-full" style="width:100%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Everything You Need</h2>
+      <p class="text-gray-400 text-center mb-16 max-w-xl mx-auto">Bank-grade security meets AI-powered grading. Built for schools, free forever.</p>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass rounded-2xl p-8 hover:bg-white/5 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Scan Answer Sheets</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Upload photos of handwritten or printed answer sheets. Google Vision OCR extracts text with 99%+ accuracy.</p>
+        </div>
+        <div class="glass rounded-2xl p-8 hover:bg-white/5 transition">
+          <div class="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Smart AI Grading</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">No answer scheme? No problem. AI searches the web for correct answers and grades against them automatically.</p>
+        </div>
+        <div class="glass rounded-2xl p-8 hover:bg-white/5 transition">
+          <div class="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Bank-Grade Security</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">AES-256 encryption, zero-trust auth, immutable audit logs. FERPA, COPPA, GDPR compliant out of the box.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" class="py-24 px-6 bg-gray-900/50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">Three Steps. That's It.</h2>
+      <div class="space-y-12">
+        <div class="flex gap-6 items-start">
+          <div class="w-12 h-12 rounded-full gradient flex items-center justify-center font-bold text-lg shrink-0">1</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Upload or Scan</h3>
+            <p class="text-gray-400">Take a photo of the answer sheet or upload a PDF. OCR extracts all text automatically.</p>
+          </div>
+        </div>
+        <div class="flex gap-6 items-start">
+          <div class="w-12 h-12 rounded-full gradient flex items-center justify-center font-bold text-lg shrink-0">2</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">AI Grades It</h3>
+            <p class="text-gray-400">Upload a rubric for precise grading, or let AI find correct answers online and grade against them.</p>
+          </div>
+        </div>
+        <div class="flex gap-6 items-start">
+          <div class="w-12 h-12 rounded-full gradient flex items-center justify-center font-bold text-lg shrink-0">3</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Review & Export</h3>
+            <p class="text-gray-400">Review AI scores, make corrections, and export grades to your gradebook. Done in seconds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Grade Smarter?</h2>
+      <p class="text-gray-400 mb-8">Join schools already using Markov. Free forever, no credit card required.</p>
+      <a href="/demo" class="inline-block gradient px-10 py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg shadow-blue-600/25">
+        Start Grading Now
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 py-8 px-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded gradient flex items-center justify-center font-bold text-xs">M</div>
+        <span class="text-sm font-semibold">Markov v3</span>
+      </div>
+      <p class="text-sm text-gray-500">MIT License &bull; Open Source &bull; Built for Education</p>
+    </div>
+  </footer>
+</body>
+</html>

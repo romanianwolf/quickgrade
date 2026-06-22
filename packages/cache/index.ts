@@ -1,0 +1,5 @@
+export { getRedis, cacheGet, cacheSet, cacheDel, buildCacheKey, buildContentHashKey } from './lib/redis'
+export { CircuitBreaker, createCircuitBreaker } from './lib/circuit-breaker'
+export type { CircuitBreakerOptions, CircuitState } from './lib/circuit-breaker'
+export { checkRateLimit, checkStudentQuota, checkTeacherQuota } from './lib/rate-limiter'
+export type { RateLimitResult } from './lib/rate-limiter'

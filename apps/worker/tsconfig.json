@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["@types/bun", "node"],
+    "paths": {
+      "@markov/core": ["../../packages/core"],
+      "@markov/types": ["../../packages/types"],
+      "@markov/db": ["../../packages/db"],
+      "@markov/cache": ["../../packages/cache"],
+      "@markov/observability": ["../../packages/observability"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

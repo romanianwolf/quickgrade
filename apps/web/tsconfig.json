@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "noEmit": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"],
+      "@markov/core": ["../../packages/core"],
+      "@markov/types": ["../../packages/types"],
+      "@markov/db": ["../../packages/db"],
+      "@markov/cache": ["../../packages/cache"],
+      "@markov/ui": ["../../packages/ui"],
+      "@markov/observability": ["../../packages/observability"],
+      "@markov/config": ["../../packages/config"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
