@@ -122,7 +122,7 @@ if errorlevel 1 (
 echo.
 
 :: ─── Step 6: Start Dev Server ─────────────────────────────────
-echo [6/6] Starting development servers...
+echo [6/6] Starting development server...
 echo.
 echo  ┌─────────────────────────────────────────┐
 echo  │  Web:     http://localhost:3000          │
@@ -131,7 +131,20 @@ echo  │  API:     http://localhost:3000/api/v1/  │
 echo  │  Worker:  http://localhost:3001          │
 echo  └─────────────────────────────────────────┘
 echo.
-echo  Press Ctrl+C to stop all servers
-echo.
 
-pnpm turbo dev
+:: Start dev server in separate window
+start "Markov Dev" cmd /c "pnpm turbo dev"
+
+:: Wait for server to boot
+echo  Waiting for server to start...
+timeout /t 6 /nobreak >nul
+
+:: Open browser to demo page
+echo  Opening browser to demo page...
+start http://localhost:3000/demo
+
+echo.
+echo  Server is running in separate window.
+echo  Close that window to stop the server.
+echo.
+pause
