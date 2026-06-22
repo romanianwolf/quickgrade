@@ -1,110 +1,127 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { ScanRequestSchema } from '@markov/types'
-import { scrubPii, callGoogleVision, hashSHA256 } from '@markov/core'
-import { createLogger, generateCorrelationId } from '@markov/observability'
-import { checkTeacherQuota } from '@markov/cache'
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
+import { Redis } from '@upstash/redis';
+import { CircuitBreaker } from '@markov/cache/circuit-breaker';
+import { TokenBucketLimiter } from '@markov/cache/rate-limiter';
+import { encryptField, deriveFieldKey } from '@markov/core/crypto/field-encrypt';
+import { scrubPII } from '@markov/core/security/pii-scrubber';
+import { callGoogleVision, normalizeOCRBlocks } from '@markov/core/ai/google-vision';
+import { generateCorrelationId, hashIP, hashUserAgent } from '@markov/observability/logger';
 
-const logger = createLogger({ component: 'api:scan' })
+const ScanRequestSchema = z.object({
+  imageBase64: z.string().min(1),
+  metadata: z.object({
+    studentId: z.string().uuid().optional(),
+    assignmentId: z.string().uuid(),
+    pageNumber: z.number().min(1).max(10).optional(),
+  }).optional(),
+});
 
-const IdempotencyStore = new Map<string, { status: string; result: unknown }>()
+export const runtime = 'nodejs';
 
-export const runtime = 'edge'
+const visionBreaker = new CircuitBreaker(5, 30000);
+const limiter = new TokenBucketLimiter(
+  Redis.fromEnv(),
+  30,
+  0.5 / 1000, // 30 req/min
+  'rl:scan:'
+);
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: NextRequest) {
-  const correlationId = generateCorrelationId()
-  const startTime = Date.now()
+  const correlationId = generateCorrelationId();
+  const startTime = Date.now();
 
   try {
-    const body = await request.json()
-    const parsed = ScanRequestSchema.safeParse(body)
+    const body = await request.json();
+    const parsed = ScanRequestSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        {
-          error: { code: 'VALIDATION_ERROR', message: 'Invalid request', details: parsed.error.flatten() },
-          correlationId,
-          timestamp: new Date().toISOString(),
-        },
-        { status: 400 },
-      )
+        { error: { code: 'VALIDATION_ERROR', message: 'Invalid request', details: parsed.error.flatten() }, correlationId, timestamp: new Date().toISOString() },
+        { status: 400 }
+      );
     }
 
-    const { imageBase64, idempotencyKey } = parsed.data
+    const { imageBase64, metadata } = parsed.data;
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const ua = request.headers.get('user-agent') ?? 'unknown';
 
-    // Idempotency check
-    const existing = IdempotencyStore.get(idempotencyKey)
-    if (existing) {
-      return NextResponse.json({ data: existing.result, correlationId, timestamp: new Date().toISOString() })
-    }
-
-    // Quota check
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown'
-    const quota = await checkTeacherQuota(`scan:${ip}`)
-    if (!quota.allowed) {
+    const { allowed, remaining } = await limiter.consume(ip);
+    if (!allowed) {
       return NextResponse.json(
-        {
-          error: { code: 'QUOTA_EXCEEDED', message: 'Rate limit exceeded for scan requests' },
-          correlationId,
-          timestamp: new Date().toISOString(),
-        },
-        { status: 429 },
-      )
+        { error: { code: 'RATE_LIMITED', message: 'Too many scan requests' }, correlationId, timestamp: new Date().toISOString() },
+        { status: 429, headers: { 'Retry-After': '60', 'x-correlation-id': correlationId } }
+      );
     }
 
-    // Call OCR
-    logger.info('Starting OCR', { correlationId })
-    const ocrResult = await callGoogleVision(imageBase64)
+    const ocrResult = await visionBreaker.call(() => callGoogleVision(imageBase64));
+    const normalizedBlocks = normalizeOCRBlocks(ocrResult.blocks);
+    const fullText = normalizedBlocks.map(b => b.text).join('\n');
+    const { scrubbed, redacted } = scrubPII(fullText);
 
-    // Scrub PII from OCR output
-    const { hashes: piiHashes } = await scrubPii(ocrResult.blocks.map((b) => b.text).join('\n'))
+    const fieldKey = await deriveFieldKey(process.env.FIELD_ENCRYPTION_KEY!, 'ocr_text');
+    const encryptedText = await encryptField(scrubbed, fieldKey, `scan:${correlationId}`);
 
-    // Hash image for deduplication
-    const imageHash = await hashSHA256(imageBase64)
+    const imageHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(imageBase64));
+    const imageHashHex = Buffer.from(imageHash).toString('hex');
 
-    const submissionId = crypto.randomUUID()
+    const submissionId = crypto.randomUUID();
 
-    const response = {
-      submissionId,
+    const { error: dbError } = await supabase.from('submissions').insert({
+      id: submissionId,
+      assignment_id: metadata?.assignmentId,
+      student_id: metadata?.studentId,
+      page_number: metadata?.pageNumber ?? 1,
+      image_hash: imageHashHex,
+      ocr_text_encrypted: encryptedText,
+      ocr_blocks: normalizedBlocks,
+      requires_review: ocrResult.requiresReview,
       status: ocrResult.requiresReview ? 'ocr_requires_review' : 'ocr_complete',
-      ocrBlocks: ocrResult.blocks,
-      requiresReview: ocrResult.requiresReview,
-      processingTimeMs: Date.now() - startTime,
-    }
+      ip_hash: hashIP(ip),
+      user_agent_hash: hashUserAgent(ua),
+      correlation_id: correlationId,
+    });
 
-    // Store idempotency result
-    IdempotencyStore.set(idempotencyKey, { status: 'complete', result: response })
+    if (dbError) throw dbError;
 
-    // Audit log
-    logger.info('OCR complete', {
-      correlationId,
-      submissionId,
-      provider: ocrResult.provider,
-      blockCount: ocrResult.blocks.length,
-      piiDetected: Object.keys(piiHashes).length > 0,
-    })
+    await supabase.from('audit_logs').insert({
+      action: 'scan',
+      entity_type: 'submission',
+      entity_id: submissionId,
+      ip_hash: hashIP(ip),
+      user_agent_hash: hashUserAgent(ua),
+      correlation_id: correlationId,
+      metadata: { blocks_count: normalizedBlocks.length, pii_redacted: redacted.length },
+    });
 
     return NextResponse.json(
-      { data: response, correlationId, timestamp: new Date().toISOString() },
       {
-        status: 200,
-        headers: {
-          'x-correlation-id': correlationId,
-          'Cache-Control': 'no-store',
-        },
-      },
-    )
-  } catch (error) {
-    logger.error('Scan failed', error instanceof Error ? error : undefined, { correlationId })
-    return NextResponse.json(
-      {
-        error: {
-          code: 'SCAN_FAILED',
-          message: error instanceof Error ? error.message : 'Internal server error',
+        data: {
+          submissionId,
+          status: ocrResult.requiresReview ? 'ocr_requires_review' : 'ocr_complete',
+          ocrBlocks: normalizedBlocks,
+          requiresReview: ocrResult.requiresReview,
+          processingTimeMs: Date.now() - startTime,
         },
         correlationId,
         timestamp: new Date().toISOString(),
       },
-      { status: 500 },
-    )
+      {
+        status: 200,
+        headers: { 'x-correlation-id': correlationId, 'Cache-Control': 'no-store' },
+      }
+    );
+  } catch (error) {
+    console.error('[scan] error:', error);
+    return NextResponse.json(
+      { error: { code: 'SCAN_FAILED', message: error instanceof Error ? error.message : 'Internal server error' }, correlationId, timestamp: new Date().toISOString() },
+      { status: 500 }
+    );
   }
 }

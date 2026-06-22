@@ -1,0 +1,51 @@
+# QuickGrade AI Coding Rules
+
+## Architecture
+- Monorepo: pnpm workspaces + Turborepo
+- Apps: apps/web (Next.js 15), apps/worker (QStash consumer)
+- Packages: core, cache, db, observability, types, ui, config
+
+## Security Rules
+- NEVER log PII; use SHA-256 hashes for audit trails
+- Always use Zod for input validation at API boundaries
+- Wrap external API calls in CircuitBreaker from @markov/cache
+- Use field-encrypt.ts for any student data before storage
+- All mutations require idempotency-key header
+- Audit logs are INSERT-ONLY; never UPDATE or DELETE
+
+## Code Style
+- TypeScript strict mode, no any types
+- Use workspace:* for cross-package dependencies
+- Prefer Edge runtime for stateless routes; Node for crypto/DB
+- Return structured JSON format, never raw vendor responses
+- Use crypto.randomUUID() for all UUID generation
+
+## API Response Format
+```json
+{
+  "data": { ... },
+  "correlationId": "uuid",
+  "timestamp": "ISO-8601"
+}
+```
+
+Error format:
+```json
+{
+  "error": { "code": "STRING", "message": "STRING" },
+  "correlationId": "uuid",
+  "timestamp": "ISO-8601"
+}
+```
+
+## Database
+- Use gen_random_uuid() for UUIDs (not uuid_generate_v4)
+- Enable RLS on all tables
+- audit_logs: INSERT-only, no UPDATE/DELETE policies
+- submissions: index on image_hash for deduplication
+- Auto-update updated_at via triggers
+
+## Testing
+- Unit tests: Vitest
+- E2E tests: Playwright
+- Run: pnpm test, pnpm test:e2e
